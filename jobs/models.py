@@ -13,5 +13,5 @@ class Job(models.Model):
     jobSalaryFrequency = models.CharField(max_length=64, null=True)
     jobRemote = models.BooleanField(blank=False, default=False)
     jobTechnologies = ListCharField(base_field=models.CharField(max_length=16), null=True, max_length=(10*10))
-    jobLink = models.CharField(max_length=64, blank=False, default='')
+    jobLink = models.TextField(blank=False, default='')
     jobSiteID = models.CharField(max_length=64, blank=False, default='', unique=True)
