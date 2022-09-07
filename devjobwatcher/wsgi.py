@@ -11,7 +11,6 @@ import os
 
 from dotenv import load_dotenv
 load_dotenv()
-print(os.getenv('ALLOWED_ORIGIN'))
 
 from django.core.wsgi import get_wsgi_application
 
