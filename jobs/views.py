@@ -4,6 +4,7 @@ from rest_framework import status
 from jobs.models import Job
 from jobs.serializers import JobSerializer
 from rest_framework.decorators import api_view
+from django.db.models import Q
 
 @api_view(['POST'])
 def create_job(request):
@@ -35,3 +36,40 @@ def delete_job(request, pk):
     if request.method == 'DELETE':
         job.delete() 
         return JsonResponse({'message': 'Job was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def search_jobs(request):
+    tags = ['react', 'javascript', 'nodejs']
+    if request.method == 'GET':
+        limit = int(request.GET.get('limit')) if type(request.GET.get('limit')) == type('') else 10
+        offset = int(request.GET.get('offset')) if type(request.GET.get('offset')) == type('') else 0
+        salaryMin = int(request.GET.get('salaryMin')) if type(request.GET.get('salaryMin')) == type('') else 0
+        salaryMax = int(request.GET.get('salaryMax')) if type(request.GET.get('salaryMax')) == type('') else 1000000
+        technologies = request.GET.get('technologies').split(',') if type(request.GET.get('technologies')) == type('') else []
+        levels = request.GET.get('levels').split(',') if type(request.GET.get('levels')) == type('') else []
+        industries = request.GET.get('industries').split(',') if type(request.GET.get('industries')) == type('') else []
+        types = request.GET.get('types').split(',') if type(request.GET.get('types')) == type('') else []
+        q_objects = Q()
+        q_technologies = Q()
+        for t in technologies:
+            q_technologies &= Q(jobTechnologies__contains=t)
+        q_objects &= q_technologies
+        q_levels = Q()
+        for l in levels:
+            q_levels |= Q(jobLevel=l)
+        q_objects &= q_levels
+        q_industries = Q()
+        for i in industries:
+            q_industries |= Q(jobIndustry__contains=i)
+        q_objects &= q_industries
+        q_types = Q()
+        for t in types:
+            q_types |= Q(jobType__contains=t)
+        q_objects &= q_types
+        q_salary = Q()
+        q_salary &= Q(jobSalaryLow__gte=salaryMin)
+        q_salary &= Q(jobSalaryLow__lte=salaryMax)
+        q_objects &= q_salary
+        jobs = Job.objects.filter(q_objects)[offset:(offset + limit)]
+        job_serializer = JobSerializer(jobs, many=True)
+        return JsonResponse(job_serializer.data, safe=False)
