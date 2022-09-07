@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -56,7 +57,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
+    os.getenv('ALLOWED_ORIGIN', 'http://localhost:3000'),
 )
 
 ROOT_URLCONF = 'devjobwatcher.urls'
@@ -88,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'o1vswnkqAY',
         'USER': 'o1vswnkqAY',
-        'PASSWORD': 'mh9T3SoIdR',
+        'PASSWORD': 'd8yOMyv9Yy',
         'HOST': 'remotemysql.com',
         'PORT': '3306',
     }
