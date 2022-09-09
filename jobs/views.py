@@ -67,9 +67,15 @@ def search_jobs(request):
             q_types |= Q(jobType__contains=t)
         q_objects &= q_types
         q_salary = Q()
-        q_salary &= Q(jobSalaryLow__gte=salaryMin)
-        q_salary &= Q(jobSalaryLow__lte=salaryMax)
+        q_salaryNum = Q()
+        q_salaryExists = Q()
+        q_salaryNum &= Q(jobSalaryLow__gte=salaryMin)
+        q_salaryNum &= Q(jobSalaryLow__lte=salaryMax)
+        q_salaryExists &= Q(jobSalaryLow=None)
+        q_salary |= q_salaryNum
+        q_salary |= q_salaryExists
         q_objects &= q_salary
         jobs = Job.objects.filter(q_objects)[offset:(offset + limit)]
+        count = Job.objects.filter(q_objects).count()
         job_serializer = JobSerializer(jobs, many=True)
-        return JsonResponse(job_serializer.data, safe=False)
+        return JsonResponse({'jobs': job_serializer.data, 'total': count}, safe=False)
